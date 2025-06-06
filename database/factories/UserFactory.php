@@ -25,6 +25,7 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
+            'username' => fake()->userName(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
@@ -41,4 +42,12 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    // jika ingin mencoba membuat user dengan role admin dengan cara tinker
+    // public function is_admin(): static
+    // {
+    //     return $this->state(fn (array $attributes) => [
+    //         'is_admin' => true,
+    //     ]);
+    // }
 }
