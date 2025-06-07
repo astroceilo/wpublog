@@ -15,7 +15,8 @@ class Post extends Model
     use HasFactory;
 
     // untuk menghindari yang namanya MassAssignment (baca di Doc Laravel) pada saat penggunaan Tinker
-    protected $fillable = ['title', 'author', 'slug', 'body'];
+    // protected $fillable = ['title', 'slug', 'author_id', 'category_id', 'body'];
+    protected $guarded = ['id'];
 
     protected $with = ['author', 'category'];
 
