@@ -6,6 +6,8 @@ use App\Models\Post;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class PostDashboardController extends Controller
 {
@@ -37,6 +39,27 @@ class PostDashboardController extends Controller
      */
     public function store(Request $request)
     {
+        // validation
+        // $request->validate([
+        //     'title' => 'required|unique:posts|min:4|max:255',
+        //     'category_id' => 'required',
+        //     'body' => 'required'
+        // ]);
+
+        Validator::make($request->all(), [
+            'title' => 'required|unique:posts|min:4|max:255',
+            'category_id' => 'required',
+            'body' => 'required'
+        ], [
+            'title.required' => 'Kolom :attribute harus diisi!',
+            'category_id.required' => 'Pilih salah satu :attribute',
+            'body.required' => ':attribute tidak boleh kosong!',
+        ], [
+            'title' => 'Judul',
+            'category_id' => 'Kategori',
+            'body' => 'Tulisan',
+        ])->validate();
+        
         Post::create([
             'title' => $request->title,
             'slug' => Str::slug($request->title),
@@ -45,7 +68,7 @@ class PostDashboardController extends Controller
             'body' => $request->body
         ]);
 
-        return redirect('/dashboard');
+        return redirect('/dashboard')->with(['success' => 'Your post has been added.']);
     }
 
     /**
