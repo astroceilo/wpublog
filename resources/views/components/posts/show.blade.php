@@ -31,7 +31,6 @@
                                 {{ $post->created_at->diffForHumans() }}
                             </p>
                         </div>
-                    </div>
                 </address>
                 <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-3 sm:space-x-4">
