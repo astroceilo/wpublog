@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PostDashboardController;
 use App\Models\Post;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
@@ -10,7 +11,7 @@ Route::get('/', function () {
 
 Route::get('/posts', function () {
     // $posts = Post::with(['author', 'category'])->latest()->get();
-    $posts = Post::latest()->filter(request(['search', 'category', 'author']))->paginate(9)->withQueryString();
+    $posts = Post::latest()->filter(request(['search', 'category', 'author']))->paginate(9)->onEachSide(1)->withQueryString();
 
     return view('posts', ['title' => 'Blog', 'posts' => $posts]);
 });
@@ -42,9 +43,11 @@ Route::get('/contact', function () {
     return view('contact', ['title' => 'Contact Us']);
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/dashboard', [PostDashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
