@@ -1,3 +1,7 @@
+@push('style')
+    <link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet" />
+@endpush
 <section>
     <header>
         <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
@@ -60,24 +64,22 @@
                 </div>
             </div>
 
+            {{-- Upload Avatar --}}
             <div class="space-y-4">
-                {{-- Upload Avatar --}}
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-800 dark:text-white" for="avatar">Upload
-                        Avatar</label>
-                    <img class="w-32 h-32 rounded-full object-cover"
-                        src="{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('img/default-avatar.png') }}"
-                        alt="{{ $user->name }}" id="avatar-preview">
-                    <input
-                        class="@error('avatar') bg-red-50 border border-red-500 text-red-900 placeholder-red-700 focus:ring-red-500 focus:border-red-500 @enderror block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                        aria-describedby="avatar_help" id="avatar" name="avatar" type="file"
-                        accept="image/png, image/jpg, image/jpeg">
-                    <div class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="avatar_help">.png or .jpg</div>
-                    @error('avatar')
-                        <p class="mt-2 text-xs text-red-600 dark:text-red-500"><span class="font-medium">{{ $message }}
-                        </p>
-                    @enderror
-                </div>
+                <label class="block mb-2 text-sm font-medium text-gray-800 dark:text-white" for="avatar">Upload
+                    Avatar</label>
+                <img class="w-32 h-32 rounded-full object-cover mb-2"
+                    src="{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('img/default-avatar.png') }}"
+                    alt="{{ $user->name }}" id="avatar-preview">
+                <input
+                    class="@error('avatar') bg-red-50 border border-red-500 text-red-900 placeholder-red-700 focus:ring-red-500 focus:border-red-500 @enderror block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                    aria-describedby="avatar_help" id="avatar" name="avatar" type="file"
+                    accept="image/png, image/jpg, image/jpeg">
+                <div class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="avatar_help">.png or .jpg</div>
+                @error('avatar')
+                    <p class="mt-2 text-xs text-red-600 dark:text-red-500"><span class="font-medium">{{ $message }}
+                    </p>
+                @enderror
             </div>
 
             <div class="flex items-center gap-4">
@@ -92,18 +94,54 @@
     </form>
 </section>
 
-<script>
-    const input = document.getElementById('avatar');
-    const previewPhoto = () => {
-        const file = input.files;
-        if (file) {
-            const fileReader = new FileReader();
-            const preview = document.getElementById('avatar-preview');
-            fileReader.onload = function(event) {
-                preview.setAttribute('src', event.target.result);
+@push('script')
+    <script>
+        const input = document.getElementById('avatar');
+        const previewPhoto = () => {
+            const file = input.files;
+            if (file) {
+                const fileReader = new FileReader();
+                const preview = document.getElementById('avatar-preview');
+                fileReader.onload = function(event) {
+                    preview.setAttribute('src', event.target.result);
+                }
+                fileReader.readAsDataURL(file[0]);
             }
-            fileReader.readAsDataURL(file[0]);
         }
-    }
-    input.addEventListener("change", previewPhoto);
-</script>
+        input.addEventListener("change", previewPhoto);
+    </script>
+
+    <script src="https://unpkg.com/filepond-plugin-image-resize/dist/filepond-plugin-image-resize.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+    <script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
+
+    <script>
+        // Register the plugin
+        FilePond.registerPlugin(FilePondPluginImageResize);
+        FilePond.registerPlugin(FilePondPluginImageTransform);
+        FilePond.registerPlugin(FilePondPluginFileValidateSize);
+        FilePond.registerPlugin(FilePondPluginFileValidateType);
+        FilePond.registerPlugin(FilePondPluginImagePreview);
+
+        // Get a reference to the file input element
+        const inputElement = document.querySelector('#avatar');
+
+        // Create a FilePond instance
+        const pond = FilePond.create(inputElement, {
+            acceptedFileTypes: ['image/png', 'image/jpg', 'image/jpeg'],
+            maxFileSize: '1MB',
+            imageResizeTargetWidth: '600',
+            imageResizeMode: 'contain',
+            imageResizeUpscale: 'false',
+            server: {
+                url: '/upload',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            }
+        });
+    </script>
+@endpush
