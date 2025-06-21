@@ -1,3 +1,6 @@
+@push('style')
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+@endpush
 <!-- Modal content -->
 <div class="max-w-4xl relative p-4 bg-white rounded-lg border dark:bg-gray-800 sm:p-5">
     <!-- Modal header -->
@@ -5,7 +8,7 @@
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Edit Post</h3>
     </div>
     <!-- Modal body -->
-    <form action="/dashboard/{{ $post->slug }}" method="POST">
+    <form action="/dashboard/{{ $post->slug }}" method="POST" id="post-form">
         @csrf
         @method('PATCH')
         <div class="mb-4">
@@ -33,8 +36,9 @@
         <div class="mb-4">
             <label for="body" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Body</label>
             <textarea id="body" name="body" rows="4"
-                class="@error('body') bg-red-50 border border-red-500 text-red-900 placeholder-red-700 focus:ring-red-500 focus:border-red-500 @enderror block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                class="hidden @error('body') bg-red-50 border border-red-500 text-red-900 placeholder-red-700 focus:ring-red-500 focus:border-red-500 @enderror block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                 placeholder="Write post body here">{{ old('body') ?? $post->body }}</textarea>
+            <div id="editor">{!! old('body', $post->body) !!}</div>
             @error('body')
                 <p class="mt-2 text-xs text-red-600 dark:text-red-500"><span class="font-medium">{{ $message }}</p>
             @enderror
@@ -51,3 +55,27 @@
         </div>
     </form>
 </div>
+@push('script')
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <script>
+        const quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: 'Write post body here'
+        });
+
+        const postForm = document.querySelector('#post-form');
+        const postBody = document.querySelector('#body');
+        const quillEditor = document.querySelector('#editor');
+
+        postForm.addEventListener('submit', function(e) {
+            e.preventDefault()
+
+            const content = quillEditor.children[0].innerHTML;
+            // console.log(content)
+
+            postBody.value = content;
+
+            this.submit();
+        });
+    </script>
+@endpush
